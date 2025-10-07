@@ -43,8 +43,6 @@ jobs:
       run: |
         mkdir -p data
         touch data/database.sqlite
-    - name: Run Migrations
-      run: php bin/console doctrine:migrations:migrate --no-interaction
     - name: Run Server
       run: php bin/console server:start
     - name: Execute tests (Unit and Feature tests) via PHPUnit
