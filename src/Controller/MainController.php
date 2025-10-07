@@ -76,10 +76,18 @@ final class MainController extends AbstractController
         $search = $request->query->get('search');
         $status = $request->query->get('status', 'all');
 
+        $totalPages = ceil(count($search
+            ? (($status === 'all') ? $repository->search($search) : $repository->searchWithStatus($search, $status))
+            : (($status === 'all') ? $repository->findAll() : $repository->status($status)))
+            / $limit);
+
+        if ($page > $totalPages) {
+            $page = $totalPages;
+        }
+
         $contacts = $search
-            ? $contacts = ($status === 'all') ? $repository->search($search, $page, $limit) : $repository->searchWithStatus($search, $page, $limit, $status)
-            : $contacts = ($status === 'all') ? $repository->paginate($page, $limit) : $repository->status($page, $limit, $status);
-        $totalPages = ceil($repository->count() / $limit);
+            ? (($status === 'all') ? $repository->searchPaginate($search, $page, $limit) : $repository->searchWithStatusPaginate($search, $page, $limit, $status))
+            : (($status === 'all') ? $repository->paginate($page, $limit) : $repository->statusPaginate($page, $limit, $status));
 
         return $this->render('main/list.html.twig', [
             'contacts' => $contacts,
