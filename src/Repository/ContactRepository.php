@@ -53,4 +53,42 @@ class ContactRepository extends ServiceEntityRepository
             ->getResult()
         ;
     }
+
+    /**
+     * @return Contact[] Returns an array of Contact objects
+     */
+    public function status(int $page, int $limit, string $status): array
+    {
+        $offset = ($page - 1) * $limit;
+
+        return $this->createQueryBuilder('c')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->andWhere('c.status = :status')
+            ->setParameter('status', $status)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    public function searchWithStatus(string $search, int $page, int $limit, string $status): array
+    {
+        $qb = $this->createQueryBuilder('c');
+        $offset = ($page - 1) * $limit;
+        return $qb
+            ->andWhere(
+                $qb->expr()->orX(
+                    $qb->expr()->like('c.firstName', ':search'),
+                    $qb->expr()->like('c.name', ':search'),
+                ),
+            )
+            ->setParameter('search', '%' . $search . '%')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->andWhere('c.status = :status')
+            ->setParameter('status', $status)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 }
