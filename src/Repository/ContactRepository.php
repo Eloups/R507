@@ -35,9 +35,10 @@ class ContactRepository extends ServiceEntityRepository
     /**
      * @return Contact[] Returns an array of Contact objects
      */
-    public function search(string $search): array
+    public function search(string $search, int $page, int $limit): array
     {
         $qb = $this->createQueryBuilder('c');
+        $offset = ($page - 1) * $limit;
         return $qb
             ->andWhere(
                 $qb->expr()->orX(
@@ -46,6 +47,8 @@ class ContactRepository extends ServiceEntityRepository
                 ),
             )
             ->setParameter('search', '%' . $search . '%')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
             ->getQuery()
             ->getResult()
         ;

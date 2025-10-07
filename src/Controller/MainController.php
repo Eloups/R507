@@ -75,7 +75,7 @@ final class MainController extends AbstractController
         $limit = 2;
         $search = $request->query->get('search');
         $contacts = $search
-            ? $repository->paginate($page, $limit)->search($search)
+            ? $repository->search($search, $page, $limit)
             : $repository->paginate($page, $limit);
         $totalPages = ceil($repository->count() / $limit);
 
