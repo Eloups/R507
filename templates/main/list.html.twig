@@ -1,60 +1,77 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <div class="login-container">
-        <div class="login-content">
-            <div>
-                <a href="{{ path('main_index') }}" class="btn btn-secondary float-start">
-                    Accès au formulaire
-                </a>
+  <div class="login-container">
+    <div class="login-content">
+      <div>
+        <a href="{{ path('main_index') }}" class="btn btn-secondary float-start">Accès au formulaire</a>
 
-                <a href="{{ path('admin') }}" class="btn btn-primary float-end">
-                    Admin
-                </a>
+        <a href="{{ path('admin') }}" class="btn btn-primary float-end">Admin</a>
+      </div>
+
+      <div class="w-100 text-center p-3">
+        <h1>Liste de contacts</h1>
+      </div>
+
+      <div>
+        <form method="get">
+          <div class="form-group row">
+            <label for="status" class="col-2 col-form-label">Statut</label>
+                <div class="col-10">
+                    <select class="form-control" id="status" name="status" onchange="this.form.submit()">
+                        <option value="all" {% if currentStatus == 'all' %}selected{% endif %}>Tous</option>
+                        <option value="new" {% if currentStatus == 'new' %}selected{% endif %}>Nouveau</option>
+                        <option value="treated" {% if currentStatus == 'treated' %}selected{% endif %}>Traité</option>
+                        <option value="archived" {% if currentStatus == 'archived' %}selected{% endif %}>Archivé</option>
+                    </select>
+                </div>
+            <label for="search" class="col-2 col-form-label">Recherche</label>
+            <div class="col-10">
+              <input type="text" class="form-control" id="search" name="search" value="{{ search }}" />
             </div>
+          </div>
 
-            <div class="w-100 text-center p-3">
-                <h1>Liste de contacts</h1>
-            </div>
+          <div>
+            <a href="{{ path('main_list') }}" class="btn btn-danger">Réinitialiser la recherche</a>
+            <button type="submit" class="btn btn-success">Rechercher</button>
+          </div>
+        </form>
 
-            <div>
-                <form method="get">
-                    <div class="form-group row">
-                        <label for="status" class="col-2 col-form-label">Statut</label>
-                        <div class="col-10">
-                            <select class="form-control" id="status" name="status" onchange="this.form.submit()">
-                                <option value="all" {% if currentStatus == 'all' %}selected{% endif %}>Tous</option>
-                                <option value="new" {% if currentStatus == 'new' %}selected{% endif %}>Nouveau</option>
-                                <option value="treated" {% if currentStatus == 'treated' %}selected{% endif %}>Traité</option>
-                                <option value="archived" {% if currentStatus == 'archived' %}selected{% endif %}>Archivé</option>
-                            </select>
-                        </div>
-                    </div>
-                </form>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>id</th>
+              <th>Prénom</th>
+              <th>Nom</th>
+              <th>Date</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for contact in contacts %}
+              <tr>
+                <td>{{ contact.id }}</td>
+                <td>{{ contact.firstName }}</td>
+                <td>{{ contact.name }}</td>
+                <td>{{ contact.createdAt|date('H:i - m/d/Y') }}</td>
+                <td>{{ contact.status }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
 
-                <table class="table">
-                    <thead>
-                    <tr>
-                        <th>id</th>
-                        <th>Prénom</th>
-                        <th>Nom</th>
-                        <th>Date</th>
-                        <th>Statut</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for contact in contacts %}
-                        <tr>
-                            <td>{{ contact.id }}</td>
-                            <td>{{ contact.firstName }}</td>
-                            <td>{{ contact.name }}</td>
-                            <td>{{ contact.createdAt|date("H:i - m/d/Y") }}</td>
-                            <td>{{ contact.status }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+        <div class="paginate">
+          {% if currentPage > 1 %}
+            <a href="{{ path('main_list', { page: currentPage - 1, search: search }) }}" class="btn btn-light float-start">Précédent</a>
+          {% endif %}
+
+          <button disabled class="disabled btn">Page {{ currentPage }} sur {{ totalPages }}</button>
+
+          {% if currentPage < totalPages %}
+            <a href="{{ path('main_list', { page: currentPage + 1, search: search }) }}" class="btn btn-light float-end">Suivant</a>
+          {% endif %}
         </div>
+      </div>
     </div>
+  </div>
 {% endblock %}
