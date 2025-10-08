@@ -10,16 +10,6 @@ jobs:
   tests:
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: test_db
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -28,17 +18,11 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, intl, pdo_mysql
+          extensions: mbstring, intl
           coverage: none
 
       - name: Install Composer dependencies
-        run: composer install --prefer-dist --no-progress
-
-      - name: Prepare test environment
-        run: |
-          cp .env.test .env
-          php bin/console doctrine:database:create --if-not-exists
-          php bin/console doctrine:migrations:migrate --no-interaction
+        run: composer install
 
       - name: Run PHPUnit tests
         run: php bin/phpunit
