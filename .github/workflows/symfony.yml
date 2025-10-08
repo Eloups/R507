@@ -28,20 +28,29 @@ jobs:
         run: php bin/phpunit
 
   deploy:
-    needs: tests
-    if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
-    
+    needs: tests
+    if: ${{ success() }}
+
     steps:
-      - uses: actions/checkout@v3
-      - name: Deploy to FTP
-        uses: appleboy/ssh-action@v0.1.5
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy on FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
-          host: ${{ secrets.FTP_HOST }}
+          server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USER }}
-          key: ${{ secrets.FTP_SSH_KEY }}
-          script: |
-            cd /var/www/myapp
-            git pull origin develop
-            composer install --no-dev
-            php bin/console cache:clear 
+          password: ${{ secrets.FTP_PASS }}
+          exclude: |
+            **/.git/**
+            **/.git*
+            **/.github/**
+            **/node_modules/**
+            **/tests/**
+            var/**
+            **/.DS_Store
+            **/Thumbs.db
+          state-name: .ftp-deploy-sync-state.json
+          log-level: verbose
+          dangerous-clean-slate: true
