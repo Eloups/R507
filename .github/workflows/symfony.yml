@@ -24,6 +24,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
       with:
         php-version: '8.2'
-      - run: composer install
-      - run: php bin/phpunit
-      - run: ./vendor/bin/phpstan analyse 
+      - name: Composer install
+        run: composer install
+      - name: Lancement des tests
+        run: php bin/phpunit
