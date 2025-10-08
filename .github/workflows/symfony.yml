@@ -26,3 +26,22 @@ jobs:
 
       - name: Run PHPUnit tests
         run: php bin/phpunit
+
+deploy:
+  needs: tests
+  if: github.ref == 'refs/heads/develop'
+  runs-on: ubuntu-latest
+  
+  steps:
+    - uses: actions/checkout@v3
+    - name: Deploy to FTP
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.FTP_HOST }}
+        username: ${{ secrets.FTP_USER }}
+        key: ${{ secrets.FTP_SSH_KEY }}
+        script: |
+          cd /var/www/myapp
+          git pull origin develop
+          composer install --no-dev
+          php bin/console cache:clear 
